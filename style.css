@@ -1,0 +1,121 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  background: #0a0a12;
+}
+
+/* 폰·아이패드 세로 기준, 세로가 긴 화면 */
+#canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  object-fit: cover;
+  touch-action: none;
+  outline: none;
+  cursor: crosshair;
+}
+
+@media (orientation: landscape) {
+  #canvas {
+    width: auto;
+    height: 100%;
+    height: 100dvh;
+    max-width: 100%;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+}
+
+#ui {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 10;
+}
+#ui button {
+  pointer-events: auto;
+  border: none;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  font-size: 15px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#ui button:active {
+  background: rgba(0,0,0,0.5);
+}
+#mode-toggle {
+  display: flex;
+  gap: 6px;
+}
+#mode-toggle .mode-btn {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+#mode-toggle .mode-btn.active {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+}
+#btn-fullscreen {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 모바일 전체화면 폴백 (Fullscreen API 미지원 시) */
+body.fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  height: 100dvh !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  z-index: 9999;
+}
+body.fullscreen #canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  height: 100dvh !important;
+  height: 100vh !important;
+}
+body.fullscreen #ui {
+  padding: 10px 12px;
+}
+body.fullscreen #btn-fullscreen {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>바다 터치 물결</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="canvas" tabindex="0" aria-label="터치하면 바다가 출렁입니다"></canvas>
+  <div id="ui">
+    <div id="mode-toggle">
+      <button type="button" id="btn-wave" class="mode-btn active" aria-pressed="true">파도</button>
+      <button type="button" id="btn-rain" class="mode-btn" aria-pressed="false">비</button>
+    </div>
+    <button type="button" id="btn-fullscreen" aria-label="전체화면">⛶</button>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>
