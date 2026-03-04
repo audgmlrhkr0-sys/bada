@@ -41,6 +41,12 @@
   const RAIN_DROP_SPEED = 5;
   const MAX_SPLASHES = 8;
   const MAX_RAIN_DROPS = 40;
+  let cameraEnabled = false;
+  let handsInstance = null;
+  let cameraVideo = null;
+  let cameraStream = null;
+  let lastHandRippleTime = 0;
+  const INDEX_FINGER_TIP = 8;
 
   function resize() {
     const w = window.innerWidth;
@@ -74,7 +80,7 @@
     'attribute vec2 aPos;',
     'varying vec2 vUv;',
     'void main() {',
-    '  vUv = aPos * 0.5 + 0.5;',
+    '  vUv = vec2(aPos.x * 0.5 + 0.5, 1.0 - (aPos.y * 0.5 + 0.5));',
     '  gl_Position = vec4(aPos, 0.0, 1.0);',
     '}'
   ].join('\n');
@@ -604,6 +610,7 @@
 
   function setMode(m) {
     mode = m;
+    document.body.classList.toggle('wave-mode', m === 'wave');
     const waveBtn = document.getElementById('btn-wave');
     const rainBtn = document.getElementById('btn-rain');
     if (waveBtn && rainBtn) {
@@ -613,6 +620,76 @@
       rainBtn.setAttribute('aria-pressed', m === 'rain');
     }
   }
+
+  function onHandResult(results) {
+    if (mode !== 'wave' || !cameraEnabled || !drawWidth || !drawHeight) return;
+    if (results.multiHandLandmarks && results.multiHandLandmarks[0]) {
+      const tip = results.multiHandLandmarks[0][INDEX_FINGER_TIP];
+      const x = (1 - tip.x) * drawWidth;
+      const y = tip.y * drawHeight;
+      const now = performance.now();
+      if (now - lastHandRippleTime > 140) {
+        addRipple(x, y);
+        lastHandRippleTime = now;
+      }
+    }
+  }
+
+  function runHandDetect() {
+    if (!cameraEnabled || !handsInstance || !cameraVideo || mode !== 'wave') return;
+    if (cameraVideo.readyState < 2) {
+      requestAnimationFrame(runHandDetect);
+      return;
+    }
+    handsInstance.send({ image: cameraVideo }).then(function (res) {
+      if (res) onHandResult(res);
+      requestAnimationFrame(runHandDetect);
+    }).catch(function () {
+      requestAnimationFrame(runHandDetect);
+    });
+  }
+
+  function startCamera() {
+    const video = document.getElementById('camera-video');
+    if (!video) return;
+    cameraVideo = video;
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 }, audio: false }).then(function (stream) {
+      cameraStream = stream;
+      video.srcObject = stream;
+      video.play();
+      if (typeof Hands !== 'undefined') {
+        handsInstance = new Hands({
+          locateFile: function (file) {
+            return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + file;
+          }
+        });
+        handsInstance.onResults(onHandResult);
+        handsInstance.setOptions({ maxNumHands: 1, modelComplexity: 1 });
+        handsInstance.initialize().then(function () {
+          runHandDetect();
+        }).catch(function () {
+          alert('손 인식 초기화에 실패했습니다.');
+        });
+      } else {
+        alert('손 인식 라이브러리를 불러올 수 없습니다. 페이지를 새로고침해 보세요.');
+      }
+    }).catch(function () {
+      alert('카메라 접근이 거부되었거나 사용할 수 없습니다.');
+    });
+  }
+
+  function stopCamera() {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(function (t) { t.stop(); });
+      cameraStream = null;
+    }
+    if (cameraVideo) {
+      cameraVideo.srcObject = null;
+    }
+    handsInstance = null;
+  }
+
+  document.body.classList.add('wave-mode');
 
   document.getElementById('btn-fullscreen').addEventListener('click', function (e) {
     e.preventDefault();
@@ -628,6 +705,14 @@
     e.preventDefault();
     e.stopPropagation();
     setMode('rain');
+  });
+  document.getElementById('camera-check').addEventListener('change', function (e) {
+    cameraEnabled = e.target.checked;
+    if (cameraEnabled) {
+      if (mode === 'wave') startCamera();
+    } else {
+      stopCamera();
+    }
   });
   document.addEventListener('fullscreenchange', updateFullscreenButton);
   document.addEventListener('webkitfullscreenchange', updateFullscreenButton);

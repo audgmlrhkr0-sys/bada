@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <title>바다 터치 물결</title>
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <canvas id="canvas" tabindex="0" aria-label="터치하면 바다가 출렁입니다"></canvas>
@@ -15,8 +15,14 @@
       <button type="button" id="btn-wave" class="mode-btn active" aria-pressed="true">파도</button>
       <button type="button" id="btn-rain" class="mode-btn" aria-pressed="false">비</button>
     </div>
+    <label id="camera-wrap" class="camera-option">
+      <input type="checkbox" id="camera-check" aria-label="카메라 손 인식">
+      <span>카메라(손)</span>
+    </label>
     <button type="button" id="btn-fullscreen" aria-label="전체화면">⛶</button>
   </div>
-  <script src="main.js?v=2"></script>
+  <video id="camera-video" playsinline muted style="display:none;"></video>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <script src="main.js?v=3"></script>
 </body>
 </html>

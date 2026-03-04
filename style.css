@@ -76,6 +76,18 @@ html, body {
   background: rgba(255,255,255,0.25);
   color: #fff;
 }
+.camera-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.camera-option input { margin: 0; }
+#camera-wrap { display: none; }
+body.wave-mode #camera-wrap { display: flex; }
 #btn-fullscreen {
   width: 44px;
   height: 44px;
