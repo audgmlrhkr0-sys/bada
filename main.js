@@ -653,10 +653,12 @@
     const video = document.getElementById('camera-video');
     if (!video) return;
     cameraVideo = video;
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 }, audio: false }).then(function (stream) {
+    video.setAttribute('playsinline', 'true');
+    video.setAttribute('webkit-playsinline', 'true');
+    function onStream(stream) {
       cameraStream = stream;
       video.srcObject = stream;
-      video.play();
+      video.play().catch(function () {});
       if (typeof Hands !== 'undefined') {
         handsInstance = new Hands({
           locateFile: function (file) {
@@ -673,8 +675,19 @@
       } else {
         alert('손 인식 라이브러리를 불러올 수 없습니다. 페이지를 새로고침해 보세요.');
       }
-    }).catch(function () {
-      alert('카메라 접근이 거부되었거나 사용할 수 없습니다.');
+    }
+    var constraints = {
+      video: {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        facingMode: { ideal: 'user' }
+      },
+      audio: false
+    };
+    navigator.mediaDevices.getUserMedia(constraints).then(onStream).catch(function () {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(onStream).catch(function () {
+        alert('카메라 접근이 거부되었거나 사용할 수 없습니다. HTTPS에서 실행 중인지, 브라우저에서 카메라 권한을 허용했는지 확인해 주세요.');
+      });
     });
   }
 
